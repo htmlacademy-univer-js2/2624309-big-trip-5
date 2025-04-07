@@ -1,20 +1,44 @@
 import FiltersView from '../view/filters-view.js';
- import SortView from '../view/sort-view.js';
- import FormEditView from '../view/form-edit-view.js';
- import PointView from '../view/point-view.js';
- 
- export default class TripPresenter {
-   constructor(container) {
-     this.container = container;
-   }
- 
-   init() {
-     new FiltersView().render(document.querySelector('.trip-controls__filters'));
-     new SortView().render(document.querySelector('.trip-events'));
-     new FormEditView().render(document.querySelector('.trip-events'));
-     for (let i = 0; i < 3; i++) {
-       new PointView().render(document.querySelector('.trip-events'));
-     }
-   }
- }
- 
+import SortView from '../view/sort-view.js';
+import PointView from '../view/point-view.js';
+import Model from '../model/model.js';
+
+export default class TripPresenter {
+  constructor() {
+    this.model = new Model();
+    this.listContainer = null;
+  }
+
+  init() {
+    this.renderFilters();
+    this.renderSort();
+    this.renderList();
+    this.renderPoints();
+  }
+
+  renderFilters() {
+    new FiltersView().render(document.querySelector('.trip-controls__filters'));
+  }
+
+  renderSort() {
+    new SortView().render(document.querySelector('.trip-events'));
+  }
+
+  renderList() {
+    const container = document.querySelector('.trip-events');
+    const listElement = document.createElement('ul');
+    listElement.classList.add('trip-events__list');
+    container.appendChild(listElement);
+    this.listContainer = listElement;
+  }
+
+  renderPoints() {
+    const points = this.model.getPoints();
+    const destinations = this.model.getDestinations();
+    const offers = this.model.getOffers();
+
+    points.forEach((point) => {
+      new PointView(point, destinations, offers).render(this.listContainer);
+    });
+  }
+}
