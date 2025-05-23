@@ -1,5 +1,6 @@
+import AbstractView from '../framework/view/abstract-view.js';
 export default class FormEditView {
-    getTemplate() {
+   get template() {
       return `
         <form class="event event--edit">
           <header class="event__header">

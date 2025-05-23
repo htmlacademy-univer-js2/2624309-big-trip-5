@@ -1,5 +1,6 @@
+import AbstractView from '../framework/view/abstract-view.js';
 export default class SortView {
-    getTemplate() {
+    get template() {
       return `
         <div class="trip-sort">
           <div class="trip-sort__item">
