@@ -1,8 +1,20 @@
-export default class PointView {
-  constructor(point, destinations, offers) {
-    this.point = point;
-    this.destination = destinations.find((d) => d.id === point.destination);
-    this.offers = offers[point.type]?.filter((o) => point.offers.includes(o.id));
+import AbstractView from '../framework/view/abstract-view.js';
+
+export default class PointView extends AbstractView {
+  #point;
+  #destination;
+  #offers;
+  #handlers;
+
+  constructor(point, destinations, offers, handlers = {}) {
+    super();
+    this.#point = point;
+    this.#destination = destinations.find((d) => d.id === point.destination);
+    this.#offers = offers[point.type]?.filter((o) => point.offers.includes(o.id));
+    this.#handlers = handlers;
+
+    // Навешиваем обработчик на кнопку, когда элемент создан
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handlers.onExpandClick);
   }
 
   #formatDate(date) {
@@ -20,8 +32,8 @@ export default class PointView {
     return `${hours}H ${remainingMinutes}M`;
   }
 
-  getTemplate() {
-    const {type, dateFrom, dateTo, basePrice} = this.point;
+  get template() {
+    const {type, dateFrom, dateTo, basePrice} = this.#point;
 
     return `
       <li class="trip-events__item">
@@ -29,7 +41,7 @@ export default class PointView {
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">${type} ${this.destination?.name || ''}</h3>
+          <h3 class="event__title">${type} ${this.#destination?.name || ''}</h3>
           <div class="event__schedule">
             <p class="event__time">
               <time class="event__start-time">${this.#formatDate(dateFrom)}</time>
@@ -41,10 +53,10 @@ export default class PointView {
           <p class="event__price">
             &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
           </p>
-          ${this.offers?.length ? `
+          ${this.#offers?.length ? `
             <h4 class="visually-hidden">Offers:</h4>
             <ul class="event__selected-offers">
-              ${this.offers.map((offer) => `
+              ${this.#offers.map((offer) => `
                 <li class="event__offer">
                   <span class="event__offer-title">${offer.title}</span>
                   &plus;&euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
@@ -58,9 +70,5 @@ export default class PointView {
         </div>
       </li>
     `;
-  }
-
-  render(container) {
-    container.insertAdjacentHTML('beforeend', this.getTemplate());
   }
 }
