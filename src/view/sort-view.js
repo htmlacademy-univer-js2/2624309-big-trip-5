@@ -1,6 +1,6 @@
 export default class SortView {
-    get template() {
-      return `
+  get template() {
+    return `
         <div class="trip-sort">
           <div class="trip-sort__item">
             <input id="sort-day" type="radio" name="trip-sort" checked>
@@ -12,10 +12,9 @@ export default class SortView {
           </div>
         </div>
       `;
-    }
-  
-    render(container) {
-      container.insertAdjacentHTML('beforeend', this.getTemplate());
-    }
   }
-  
+
+  render(container) {
+    container.insertAdjacentHTML('beforeend', this.getTemplate());
+  }
+}

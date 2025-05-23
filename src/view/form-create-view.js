@@ -1,6 +1,6 @@
 export default class FormCreateView {
-    getTemplate() {
-      return `
+  getTemplate() {
+    return `
         <form class="event event--edit">
           <header class="event__header">
             <div class="event__type-wrapper">
@@ -52,9 +52,9 @@ export default class FormCreateView {
           </section>
         </form>
       `;
-    }
-  
-    render(container) {
-      container.insertAdjacentHTML('beforeend', this.getTemplate());
-    }
   }
+
+  render(container) {
+    container.insertAdjacentHTML('beforeend', this.getTemplate());
+  }
+}
