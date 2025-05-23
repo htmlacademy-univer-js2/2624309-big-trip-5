@@ -60,4 +60,29 @@ export default class FormEditView {
     render(container) {
       container.insertAdjacentHTML('afterbegin', this.getTemplate());
     }
+    blockForm(isBlocked) {
+  const elements = this.element.querySelectorAll('input, button, select, textarea');
+  elements.forEach(el => el.disabled = isBlocked);
+}
+
+setSaving(isSaving) {
+  const saveButton = this.element.querySelector('.event__save-btn');
+  if (saveButton) {
+    saveButton.textContent = isSaving ? 'Saving...' : 'Save';
+  }
+}
+
+setDeleting(isDeleting) {
+  const deleteButton = this.element.querySelector('.event__delete-btn');
+  if (deleteButton) {
+    deleteButton.textContent = isDeleting ? 'Deleting...' : 'Delete';
+  }
+}
+
+shake() {
+  this.element.classList.add('shake');
+  setTimeout(() => this.element.classList.remove('shake'), 600);
+}
+
+
   }

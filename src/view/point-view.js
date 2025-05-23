@@ -1,8 +1,20 @@
-export default class PointView {
-  constructor(point, destinations, offers) {
-    this.point = point;
-    this.destination = destinations.find((d) => d.id === point.destination);
-    this.offers = offers[point.type]?.filter((o) => point.offers.includes(o.id));
+import AbstractView from '../framework/view/abstract-view.js';
+
+export default class PointView extends AbstractView {
+  #point;
+  #destination;
+  #offers;
+  #handlers;
+
+  constructor(point, destinations, offers, handlers = {}) {
+    super();
+    this.#point = point;
+    this.#destination = destinations.find((d) => d.id === point.destination);
+    this.#offers = offers[point.type]?.filter((o) => point.offers.includes(o.id));
+    this.#handlers = handlers;
+
+    // Навешиваем обработчик на кнопку, когда элемент создан
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handlers.onExpandClick);
   }
 
   #formatDate(date) {
@@ -11,13 +23,27 @@ export default class PointView {
 
   #getDuration(dateFrom, dateTo) {
     const diff = dateTo - dateFrom;
-    const minutes = Math.floor(diff / 60000);
-    if (minutes < 60) {
-      return `${minutes}M`;
+    const minutesTotal = Math.floor(diff / 60000);
+
+    if (minutesTotal < 60) {
+      return `${minutesTotal}M`;
     }
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours}H ${remainingMinutes}M`;
+
+    const minutes = minutesTotal % 60;
+    const hoursTotal = Math.floor(minutesTotal / 60);
+
+    if (hoursTotal < 24) {
+      return `${hoursTotal}H ${minutes.toString().padStart(2, '0')}M`;
+    }
+
+    const hours = hoursTotal % 24;
+    const days = Math.floor(hoursTotal / 24);
+
+    const daysStr = `${days}D`;
+    const hoursStr = hours > 0 ? ` ${hours}H` : '';
+    const minutesStr = minutes > 0 ? ` ${minutes.toString().padStart(2, '0')}M` : '';
+
+    return daysStr + hoursStr + minutesStr;
   }
 
   getTemplate() {
@@ -63,4 +89,9 @@ export default class PointView {
   render(container) {
     container.insertAdjacentHTML('beforeend', this.getTemplate());
   }
+
+  setFavoriteClickHandler(callback) {
+  this.element.querySelector('.event__favorite-btn').addEventListener('click', callback);
+}
+
 }

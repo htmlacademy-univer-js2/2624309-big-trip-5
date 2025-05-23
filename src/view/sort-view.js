@@ -1,5 +1,5 @@
 export default class SortView {
-    getTemplate() {
+    get template() {
       return `
         <div class="trip-sort">
           <div class="trip-sort__item">

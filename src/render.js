@@ -17,3 +17,7 @@ function render(component, container, place = RenderPosition.BEFOREEND) {
 }
 
 export {RenderPosition, createElement, render};
+
+const pointView = new PointView(point, destinations, offers, {
+  onExpandClick: () => this.replacePointToForm(pointView, editPointView)
+});
