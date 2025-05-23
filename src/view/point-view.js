@@ -6,6 +6,13 @@ export default class PointView extends AbstractView {
   #offers;
   #handlers;
 
+  setFavoriteClickHandler(callback) {
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', (evt) => {
+      evt.preventDefault();
+      callback();
+    });
+  }
+
   constructor(point, destinations, offers, handlers = {}) {
     super();
     this.#point = point;

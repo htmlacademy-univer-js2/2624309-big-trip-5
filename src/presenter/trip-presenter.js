@@ -1,14 +1,17 @@
 import FiltersView from '../view/filters-view.js';
 import SortView from '../view/sort-view.js';
-import PointView from '../view/point-view.js';
-import EditPointView from '../view/form-edit-view.js';
 import Model from '../model/model.js';
+import PointPresenter from './point-presenter.js';
 
 export default class TripPresenter {
   constructor() {
     this.model = new Model();
     this.listContainer = null;
-    this.components = [];
+
+    this.filtersComponent = null;
+    this.sortComponent = null;
+
+    this.pointPresenters = new Map(); // для хранения PointPresenter по id
   }
 
   init() {
@@ -19,13 +22,13 @@ export default class TripPresenter {
   }
 
   renderFilters() {
-    const filtersView = new FiltersView();
-    document.querySelector('.trip-controls__filters').appendChild(filtersView.element);
+    this.filtersComponent = new FiltersView();
+    document.querySelector('.trip-controls__filters').appendChild(this.filtersComponent.element);
   }
 
   renderSort() {
-    const sortView = new SortView();
-    document.querySelector('.trip-events').appendChild(sortView.element);
+    this.sortComponent = new SortView();
+    document.querySelector('.trip-events').appendChild(this.sortComponent.element);
   }
 
   renderList() {
@@ -41,45 +44,29 @@ export default class TripPresenter {
     const destinations = this.model.getDestinations();
     const offers = this.model.getOffers();
 
+    // Удаляем предыдущие презентеры и очищаем контейнер
+    this.pointPresenters.forEach((presenter) => presenter.destroy());
+    this.pointPresenters.clear();
+    this.listContainer.innerHTML = '';
+
     points.forEach((point) => {
-      const pointView = new PointView(point, destinations, offers);
-      const editPointView = new EditPointView(point, destinations, offers);
-
-      this.listContainer.appendChild(pointView.element);
-
-      this.components.push({ pointView, editPointView });
-
-      pointView.expandButton.addEventListener('click', () => {
-        this.replacePointToForm(pointView, editPointView);
-      });
-
-      editPointView.formElement.addEventListener('submit', (evt) => {
-        evt.preventDefault();
-        this.replaceFormToPoint(pointView, editPointView);
-      });
-
-      editPointView.collapseButton.addEventListener('click', () => {
-        this.replaceFormToPoint(pointView, editPointView);
-      });
-    });
-
-    document.addEventListener('keydown', (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        this.components.forEach(({ pointView, editPointView }) => {
-          if (this.listContainer.contains(editPointView.element)) {
-            this.replaceFormToPoint(pointView, editPointView);
-          }
-        });
-      }
+      const presenter = new PointPresenter(
+        this.listContainer,
+        this.handleDataChange.bind(this),
+        this.resetAllForms.bind(this)
+      );
+      presenter.init(point, destinations, offers);
+      this.pointPresenters.set(point.id, presenter);
     });
   }
 
-  replacePointToForm(pointView, editPointView) {
-    this.listContainer.replaceChild(editPointView.element, pointView.element);
+  handleDataChange(updatedPoint) {
+    // Обновляем модель — здесь можно добавить вызов API и обновление модели
+    this.model.updatePoint(updatedPoint);
+    this.renderPoints();
   }
 
-  replaceFormToPoint(pointView, editPointView) {
-    this.listContainer.replaceChild(pointView.element, editPointView.element);
+  resetAllForms() {
+    this.pointPresenters.forEach((presenter) => presenter.resetView());
   }
-  
 }
