@@ -7,3 +7,10 @@ export const SortType = {
   PRICE: 'price',
   TIME: 'time',
 };
+
+export const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PAST: 'past',
+  PRESENT: 'present',
+};
