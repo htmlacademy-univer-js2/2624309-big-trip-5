@@ -2,39 +2,36 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-plugins: [
-  new HtmlWebpackPlugin({
-    template: 'public/index.html',  // Шаблон HTML
-  }),
-],
 module.exports = {
-  entry: './src/main.js',  // Главный JS-файл
+  entry: './src/main.js',
   output: {
-    filename: 'bundle.js',  // Имя итогового файла
-    path: path.resolve(__dirname, 'build'),  // Папка для сборки
-    clean: true,  // Очищать папку перед сборкой
+    filename: 'bundle.[contenthash].js',
+    path: path.resolve(__dirname, 'build'),
+    clean: true,
   },
-  devtool: 'source-map',  // Генерировать source maps (для отладки)
+  devtool: 'source-map',
   plugins: [
-    new CopyPlugin({  // Копирует файлы из public в build
+    new HtmlWebpackPlugin({
+      template: 'public/index.html',
+    }),
+    new CopyPlugin({
       patterns: [{ from: 'public', to: 'build' }],
     }),
   ],
   module: {
     rules: [
       {
-        test: /\.js$/,  // Применять Babel ко всем JS-файлам
-        exclude: /node_modules/,  // Игнорировать node_modules
+        test: /\.js$/,
+        exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],  // Настройки Babel
-          },
+          options: { presets: ['@babel/preset-env'] },
         },
       },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
     ],
-  },
-  output: {
-    filename: 'bundle.[contenthash].js',  // Будет bundle.3a8b7c.js
   },
 };

@@ -1,7 +1,6 @@
-import AbstractView from '../framework/view/abstract-view.js';
 export default class FormCreateView {
-    get template() {
-      return `
+  get template() {
+    return `
         <form class="event event--edit">
           <header class="event__header">
             <div class="event__type-wrapper">
@@ -53,9 +52,9 @@ export default class FormCreateView {
           </section>
         </form>
       `;
-    }
-  
-    render(container) {
-      container.insertAdjacentHTML('beforeend', this.getTemplate());
-    }
   }
+
+  render(container) {
+    container.insertAdjacentHTML('beforeend', this.getTemplate());
+  }
+}

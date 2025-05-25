@@ -1,15 +1,15 @@
 import FiltersView from '../view/filters-view.js';
 import SortView from '../view/sort-view.js';
 import Model from '../model/model.js';
-import PointPresenter from './point-presenter.js';
-import { SortType, FilterType } from '../const.js';
+import PointPresenter from './PointPresenter.js';
+import { SortType } from '../const.js';
 
 export default class TripPresenter {
   constructor() {
     this.model = new Model();
 
     this.listContainer = null;
-    this.pointPresenters = new Map(); // для хранения PointPresenter по id
+    this.pointPresenters = new Map();
 
     this.currentSortType = SortType.DAY;
 
@@ -40,7 +40,7 @@ export default class TripPresenter {
 
   handleSortChange(sortType) {
     if (this.currentSortType === sortType) {
-      return; // Не перерисовываем, если сортировка не изменилась
+      return;
     }
     this.currentSortType = sortType;
     this.clearPoints();
@@ -56,7 +56,7 @@ export default class TripPresenter {
   }
 
   getSortedPoints() {
-    const points = this.model.getPoints().slice(); // копируем массив
+    const points = this.model.getPoints().slice();
     switch(this.currentSortType) {
       case SortType.DAY:
         return points.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
@@ -64,10 +64,10 @@ export default class TripPresenter {
         return points.sort((a, b) => {
           const durationA = new Date(a.dateTo) - new Date(a.dateFrom);
           const durationB = new Date(b.dateTo) - new Date(b.dateFrom);
-          return durationB - durationA; // от большего к меньшему
+          return durationB - durationA;
         });
       case SortType.PRICE:
-        return points.sort((a, b) => b.basePrice - a.basePrice); // от большего к меньшему
+        return points.sort((a, b) => b.basePrice - a.basePrice);
       default:
         return points;
     }
@@ -78,10 +78,7 @@ export default class TripPresenter {
     const destinations = this.model.getDestinations();
     const offers = this.model.getOffers();
 
-    // Удаляем предыдущие презентеры и очищаем контейнер
-    this.pointPresenters.forEach((presenter) => presenter.destroy());
-    this.pointPresenters.clear();
-    this.listContainer.innerHTML = '';
+    this.clearPoints();
 
     points.forEach((point) => {
       const presenter = new PointPresenter(
@@ -95,7 +92,7 @@ export default class TripPresenter {
   }
 
   clearPoints() {
-    this.pointPresenters.forEach(presenter => presenter.destroy());
+    this.pointPresenters.forEach((presenter) => presenter.destroy());
     this.pointPresenters.clear();
     if(this.listContainer) {
       this.listContainer.innerHTML = '';
@@ -103,7 +100,6 @@ export default class TripPresenter {
   }
 
   handleDataChange(updatedPoint) {
-    // Обновляем модель — здесь можно добавить вызов API и обновление модели
     this.model.updatePoint(updatedPoint);
     this.renderPoints();
   }
