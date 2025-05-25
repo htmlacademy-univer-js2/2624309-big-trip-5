@@ -40,7 +40,7 @@ export default class PointPresenter {
     this.#editPointComponent.setSaveHandler(this.#handleFormSave.bind(this));
     this.#editPointComponent.setCancelHandler(this.#handleFormCancel.bind(this));
 
-    if (prevPointComponent === null || prevEditPointComponent === null) {
+    if (!prevPointComponent || !prevEditPointComponent) {
       this.#container.appendChild(this.#pointComponent.element);
       return;
     }

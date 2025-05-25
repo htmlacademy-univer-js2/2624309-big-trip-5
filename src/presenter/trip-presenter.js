@@ -9,7 +9,7 @@ export default class TripPresenter {
     this.model = new Model();
 
     this.listContainer = null;
-    this.pointPresenters = new Map(); // для хранения PointPresenter по id
+    this.pointPresenters = new Map();
 
     this.currentSortType = SortType.DAY;
 
@@ -40,7 +40,7 @@ export default class TripPresenter {
 
   handleSortChange(sortType) {
     if (this.currentSortType === sortType) {
-      return; // Не перерисовываем, если сортировка не изменилась
+      return;
     }
     this.currentSortType = sortType;
     this.clearPoints();
@@ -56,7 +56,7 @@ export default class TripPresenter {
   }
 
   getSortedPoints() {
-    const points = this.model.getPoints().slice(); // копируем массив
+    const points = this.model.getPoints().slice();
     switch(this.currentSortType) {
       case SortType.DAY:
         return points.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
@@ -64,10 +64,10 @@ export default class TripPresenter {
         return points.sort((a, b) => {
           const durationA = new Date(a.dateTo) - new Date(a.dateFrom);
           const durationB = new Date(b.dateTo) - new Date(b.dateFrom);
-          return durationB - durationA; // от большего к меньшему
+          return durationB - durationA;
         });
       case SortType.PRICE:
-        return points.sort((a, b) => b.basePrice - a.basePrice); // от большего к меньшему
+        return points.sort((a, b) => b.basePrice - a.basePrice);
       default:
         return points;
     }
@@ -78,12 +78,9 @@ export default class TripPresenter {
     const destinations = this.model.getDestinations();
     const offers = this.model.getOffers();
 
-    // Удаляем предыдущие презентеры и очищаем контейнер
-    this.pointPresenters.forEach((presenter) => presenter.destroy());
-    this.pointPresenters.clear();
-    this.listContainer.innerHTML = '';
+    this.clearPoints();
 
-    points.forEach((point) => {
+    points.forEach(point => {
       const presenter = new PointPresenter(
         this.listContainer,
         this.handleDataChange.bind(this),
@@ -103,12 +100,11 @@ export default class TripPresenter {
   }
 
   handleDataChange(updatedPoint) {
-    // Обновляем модель — здесь можно добавить вызов API и обновление модели
     this.model.updatePoint(updatedPoint);
     this.renderPoints();
   }
 
   resetAllForms() {
-    this.pointPresenters.forEach((presenter) => presenter.resetView());
+    this.pointPresenters.forEach(presenter => presenter.resetView());
   }
 }
