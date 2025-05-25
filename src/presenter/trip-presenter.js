@@ -221,8 +221,8 @@ export default class TripPresenter {
       return;
     }
 
-    const cities = points.map(p => {
-      const dest = this.model.getDestinations().find(d => d.id === p.destination);
+    const cities = points.map((p) => {
+      const dest = this.model.getDestinations().find((d) => d.id === p.destination);
       return dest ? dest.name : '';
     });
 
@@ -244,8 +244,10 @@ export default class TripPresenter {
       totalPrice += p.basePrice;
       const offers = this.model.getOffers()[p.type] || [];
       p.offers.forEach((offerId) => {
-        const offer = offers.find(o => o.id === offerId);
-        if (offer) totalPrice += offer.price;
+        const offer = offers.find((o) => o.id === offerId);
+        if (offer) {
+          totalPrice += offer.price;
+        }
       });
     });
 
@@ -253,9 +255,15 @@ export default class TripPresenter {
     const datesElement = this.container.querySelector('.trip-info__dates');
     const priceElement = this.container.querySelector('.trip-info__cost-value');
 
-    if (routeElement) routeElement.textContent = routeStr;
-    if (datesElement) datesElement.textContent = `${startDateStr} — ${endDateStr}`;
-    if (priceElement) priceElement.textContent = totalPrice;
+    if (routeElement) {
+      routeElement.textContent = routeStr;
+    }
+    if (datesElement) {
+      datesElement.textContent = `${startDateStr} — ${endDateStr}`;
+    }
+    if (priceElement) {
+      priceElement.textContent = totalPrice;
+    }
   }
 
   _clearRouteInfo() {
@@ -263,9 +271,15 @@ export default class TripPresenter {
     const datesElement = this.container.querySelector('.trip-info__dates');
     const priceElement = this.container.querySelector('.trip-info__cost-value');
 
-    if (routeElement) routeElement.textContent = '';
-    if (datesElement) datesElement.textContent = '';
-    if (priceElement) priceElement.textContent = '';
+    if (routeElement) {
+      routeElement.textContent = '';
+    }
+    if (datesElement) {
+      datesElement.textContent = '';
+    }
+    if (priceElement) {
+      priceElement.textContent = '';
+    }
   }
 
   // --- CRUD Actions ---
