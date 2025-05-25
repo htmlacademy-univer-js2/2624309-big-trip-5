@@ -5,6 +5,7 @@ import PointPresenter from './PointPresenter.js';
 import ApiService from '../api/api-service.js';
 import { SortType, FilterType } from '../const.js';
 import { render, RenderPosition, remove } from './render.js';
+import dayjs from 'dayjs';
 
 export default class TripPresenter {
   constructor(container) {
@@ -33,9 +34,11 @@ export default class TripPresenter {
       this._renderSort();
       this._renderList();
       this._renderPoints();
+      this._updateRouteInfo(); // обновляем маршрут, даты и цену
     } catch (err) {
       this._removeLoading();
       this._renderError();
+
       // console.error('Ошибка загрузки данных:', err);
     }
   }
@@ -90,6 +93,8 @@ export default class TripPresenter {
   _renderFilters() {
     const old = this.filtersComponent;
     const pts = this.model.getPoints();
+
+    // Проверяем, для каких фильтров есть точки, чтобы блокировать недоступные
     const availability = {
       everything: pts.length > 0,
       future:     pts.some((p) => new Date(p.dateFrom) > Date.now()),
@@ -103,10 +108,11 @@ export default class TripPresenter {
     this.filtersComponent = new FiltersView(availability, this.currentFilter);
     this.filtersComponent.setFilterChangeHandler((filterType) => {
       this.currentFilter = filterType;
-      this.currentSortType = SortType.DAY; // сброс сортировки
+      this.currentSortType = SortType.DAY;
       this._clearPoints();
       this._renderSort();
       this._renderPoints();
+      this._updateRouteInfo(); // обновляем маршрут при смене фильтра
     });
 
     if (old) {
@@ -136,6 +142,7 @@ export default class TripPresenter {
     this.currentSortType = sortType;
     this._clearPoints();
     this._renderPoints();
+    this._updateRouteInfo(); // обновляем маршрут при смене сортировки
   }
 
   _getSortedPoints(points) {
@@ -172,6 +179,10 @@ export default class TripPresenter {
     const dests = this.model.getDestinations();
     const offers = this.model.getOffers();
 
+
+    this._clearPoints();
+
+
     if (pts.length === 0) {
       const msg = {
         [FilterType.EVERYTHING]: 'Click New Event to create your first point',
@@ -200,7 +211,79 @@ export default class TripPresenter {
   _clearPoints() {
     this.pointPresenters.forEach((p) => p.destroy());
     this.pointPresenters.clear();
-    this.listContainer.innerHTML = '';
+    if(this.listContainer) {
+      this.listContainer.innerHTML = '';
+    }
+  }
+
+  // --- Маршрут, даты и цена ---
+
+  _updateRouteInfo() {
+    const points = this.model.getPoints().slice().sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+    if (points.length === 0) {
+      this._clearRouteInfo();
+      return;
+    }
+
+    const cities = points.map((p) => {
+      const dest = this.model.getDestinations().find((d) => d.id === p.destination);
+      return dest ? dest.name : '';
+    });
+
+    let routeStr = '';
+    if (cities.length <= 3) {
+      routeStr = cities.join(' — ');
+    } else {
+      routeStr = `${cities[0]} — ... — ${cities[cities.length - 1]}`;
+    }
+
+    const startDate = points[0].dateFrom;
+    const endDate = points[points.length - 1].dateTo;
+
+    const startDateStr = dayjs(startDate).format('MMM D');
+    const endDateStr = dayjs(endDate).format('MMM D');
+
+    let totalPrice = 0;
+    points.forEach((p) => {
+      totalPrice += p.basePrice;
+      const offers = this.model.getOffers()[p.type] || [];
+      p.offers.forEach((offerId) => {
+        const offer = offers.find((o) => o.id === offerId);
+        if (offer) {
+          totalPrice += offer.price;
+        }
+      });
+    });
+
+    const routeElement = this.container.querySelector('.trip-info__main');
+    const datesElement = this.container.querySelector('.trip-info__dates');
+    const priceElement = this.container.querySelector('.trip-info__cost-value');
+
+    if (routeElement) {
+      routeElement.textContent = routeStr;
+    }
+    if (datesElement) {
+      datesElement.textContent = `${startDateStr} — ${endDateStr}`;
+    }
+    if (priceElement) {
+      priceElement.textContent = totalPrice;
+    }
+  }
+
+  _clearRouteInfo() {
+    const routeElement = this.container.querySelector('.trip-info__main');
+    const datesElement = this.container.querySelector('.trip-info__dates');
+    const priceElement = this.container.querySelector('.trip-info__cost-value');
+
+    if (routeElement) {
+      routeElement.textContent = '';
+    }
+    if (datesElement) {
+      datesElement.textContent = '';
+    }
+    if (priceElement) {
+      priceElement.textContent = '';
+    }
   }
 
   // --- CRUD Actions ---
@@ -211,9 +294,14 @@ export default class TripPresenter {
       this.model.updatePoint(saved);
       this._clearPoints();
       this._renderPoints();
+      this._updateRouteInfo();
     } catch (err) {
+
+      // можно добавить shake-эффект здесь
+
       // тут можно добавить обратную связь — shake эффект и т.п.
       // console.error('Ошибка при обновлении точки:', err);
+
     }
   }
 
@@ -223,9 +311,15 @@ export default class TripPresenter {
       this.model.deletePoint(deleted.id);
       this._clearPoints();
       this._renderPoints();
+
+      this._updateRouteInfo();
+    } catch (err) {
+      // можно добавить shake-эффект здесь
+
     } catch (err) {
       // тут можно добавить обратную связь при ошибке удаления
       // console.error('Ошибка при удалении точки:', err);
+
     }
   }
 
@@ -235,6 +329,11 @@ export default class TripPresenter {
       this.model.addPoint(created);
       this._clearPoints();
       this._renderPoints();
+
+      this._updateRouteInfo();
+    } catch (err) {
+      // можно добавить shake-эффект здесь
+
     } catch (err) {
       // обработка ошибки добавления точки
       // console.error('Ошибка при добавлении точки:', err);
