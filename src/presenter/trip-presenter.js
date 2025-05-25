@@ -10,8 +10,8 @@ import dayjs from 'dayjs';
 export default class TripPresenter {
   constructor(container) {
     this.container = container;
-    this.model = new Model();
     this.apiService = new ApiService();
+    this.model = new Model(this.apiService);
     this.pointPresenters = new Map();
 
     this.currentSortType = SortType.DAY;
@@ -27,22 +27,14 @@ export default class TripPresenter {
     this._renderLoading();
 
     try {
-      const [points, destinations, offers] = await Promise.all([
-        this.apiService.getPoints(),
-        this.apiService.getDestinations(),
-        this.apiService.getOffers(),
-      ]);
-
-      this.model.setPoints(points);
-      this.model.setDestinations(destinations);
-      this.model.setOffers(offers);
+      await this.model.init(); // загружает точки, дестинации, офферы через API
 
       this._removeLoading();
       this._renderFilters();
       this._renderSort();
       this._renderList();
       this._renderPoints();
-      this._updateRouteInfo(); // Добавлено: обновляем маршрут, даты и цену
+      this._updateRouteInfo(); // обновляем маршрут, даты и цену
     } catch (err) {
       this._removeLoading();
       this._renderError();
@@ -74,7 +66,7 @@ export default class TripPresenter {
     container.appendChild(errorEl);
   }
 
-  // --- FILTERS ---
+  // --- Filters ---
 
   _getFilteredPoints() {
     const all = this.model.getPoints();
@@ -99,6 +91,8 @@ export default class TripPresenter {
   _renderFilters() {
     const old = this.filtersComponent;
     const pts = this.model.getPoints();
+
+    // Проверяем, для каких фильтров есть точки, чтобы блокировать недоступные
     const availability = {
       everything: pts.length > 0,
       future:     pts.some((p) => new Date(p.dateFrom) > Date.now()),
@@ -129,7 +123,7 @@ export default class TripPresenter {
     );
   }
 
-  // --- SORT ---
+  // --- Sort ---
 
   _renderSort() {
     if (this.sortComponent) {
@@ -168,7 +162,7 @@ export default class TripPresenter {
     }
   }
 
-  // --- LIST & POINTS ---
+  // --- List & Points ---
 
   _renderList() {
     const list = document.createElement('ul');
@@ -185,7 +179,6 @@ export default class TripPresenter {
 
     this._clearPoints();
 
-    // если нет ни одной точки
     if (pts.length === 0) {
       const msg = {
         [FilterType.EVERYTHING]: 'Click New Event to create your first point',
@@ -303,8 +296,8 @@ export default class TripPresenter {
 
   async _handleAddPoint(newPoint) {
     try {
-      const saved = await this.apiService.addPoint(newPoint);
-      this.model.addPoint(saved);
+      const created = await this.apiService.addPoint(newPoint);
+      this.model.addPoint(created);
       this._clearPoints();
       this._renderPoints();
       this._updateRouteInfo();
