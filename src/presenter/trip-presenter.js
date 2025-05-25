@@ -38,6 +38,8 @@ export default class TripPresenter {
     } catch (err) {
       this._removeLoading();
       this._renderError();
+
+      // console.error('Ошибка загрузки данных:', err);
     }
   }
 
@@ -177,7 +179,9 @@ export default class TripPresenter {
     const dests = this.model.getDestinations();
     const offers = this.model.getOffers();
 
+
     this._clearPoints();
+
 
     if (pts.length === 0) {
       const msg = {
@@ -292,7 +296,12 @@ export default class TripPresenter {
       this._renderPoints();
       this._updateRouteInfo();
     } catch (err) {
+
       // можно добавить shake-эффект здесь
+
+      // тут можно добавить обратную связь — shake эффект и т.п.
+      // console.error('Ошибка при обновлении точки:', err);
+
     }
   }
 
@@ -302,9 +311,15 @@ export default class TripPresenter {
       this.model.deletePoint(deleted.id);
       this._clearPoints();
       this._renderPoints();
+
       this._updateRouteInfo();
     } catch (err) {
       // можно добавить shake-эффект здесь
+
+    } catch (err) {
+      // тут можно добавить обратную связь при ошибке удаления
+      // console.error('Ошибка при удалении точки:', err);
+
     }
   }
 
@@ -314,9 +329,14 @@ export default class TripPresenter {
       this.model.addPoint(created);
       this._clearPoints();
       this._renderPoints();
+
       this._updateRouteInfo();
     } catch (err) {
       // можно добавить shake-эффект здесь
+
+    } catch (err) {
+      // обработка ошибки добавления точки
+      // console.error('Ошибка при добавлении точки:', err);
     }
   }
 }
