@@ -1,4 +1,3 @@
-import {generateDestinations, generateOffers, generatePoints} from '../mock/mock.js';
 
 export default class Model {
   constructor() {

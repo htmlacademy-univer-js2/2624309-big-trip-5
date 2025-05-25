@@ -1,4 +1,3 @@
-import { generateDestinations, generateOffers, generatePoints } from './mock/mock.js';
 import PointsModel from './model/model.js';
 import TripPresenter from './presenter/trip-presenter.js';
 import FilterModel from './model/filter-model.js';
