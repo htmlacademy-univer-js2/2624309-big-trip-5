@@ -9,8 +9,8 @@ import { render, RenderPosition, remove } from './render.js';
 export default class TripPresenter {
   constructor(container) {
     this.container = container;
-    this.model = new Model();
     this.apiService = new ApiService();
+    this.model = new Model(this.apiService);
     this.pointPresenters = new Map();
 
     this.currentSortType = SortType.DAY;
@@ -23,32 +23,20 @@ export default class TripPresenter {
   }
 
   async init() {
-    // 1) Показываем Loading...
     this._renderLoading();
 
-    // 2) Загружаем точки, дестинации и оффера
     try {
-      const [points, destinations, offers] = await Promise.all([
-        this.apiService.getPoints(),
-        this.apiService.getDestinations(),
-        this.apiService.getOffers(),
-      ]);
+      await this.model.init(); // загружает точки, дестинации, офферы через API
 
-      // 3) Записываем данные в модель
-      this.model.setPoints(points);
-      this.model.setDestinations(destinations);
-      this.model.setOffers(offers);
-
-      // 4) Убираем Loading и рендерим всё
       this._removeLoading();
       this._renderFilters();
       this._renderSort();
       this._renderList();
       this._renderPoints();
     } catch (err) {
-      //console.error('Ошибка загрузки данных:', err);
       this._removeLoading();
-      this._renderError(); // показываем «Failed to load…»
+      this._renderError();
+      // console.error('Ошибка загрузки данных:', err);
     }
   }
 
@@ -77,7 +65,7 @@ export default class TripPresenter {
     container.appendChild(errorEl);
   }
 
-  // --- FILTERS ---
+  // --- Filters ---
 
   _getFilteredPoints() {
     const all = this.model.getPoints();
@@ -131,7 +119,7 @@ export default class TripPresenter {
     );
   }
 
-  // --- SORT ---
+  // --- Sort ---
 
   _renderSort() {
     if (this.sortComponent) {
@@ -169,7 +157,7 @@ export default class TripPresenter {
     }
   }
 
-  // --- LIST & POINTS ---
+  // --- List & Points ---
 
   _renderList() {
     const list = document.createElement('ul');
@@ -184,7 +172,6 @@ export default class TripPresenter {
     const dests = this.model.getDestinations();
     const offers = this.model.getOffers();
 
-    // если нет ни одной точки
     if (pts.length === 0) {
       const msg = {
         [FilterType.EVERYTHING]: 'Click New Event to create your first point',
@@ -225,20 +212,32 @@ export default class TripPresenter {
       this._clearPoints();
       this._renderPoints();
     } catch (err) {
-      // здесь можно вызвать shake-эффект через presenter
-      //console.error('Ошибка при обновлении точки:', err);
+      // тут можно добавить обратную связь — shake эффект и т.п.
+      // console.error('Ошибка при обновлении точки:', err);
     }
   }
 
   async _handleDeletePoint(deleted) {
-    this.model.deletePoint(deleted.id);
-    this._clearPoints();
-    this._renderPoints();
+    try {
+      await this.apiService.deletePoint(deleted.id);
+      this.model.deletePoint(deleted.id);
+      this._clearPoints();
+      this._renderPoints();
+    } catch (err) {
+      // тут можно добавить обратную связь при ошибке удаления
+      // console.error('Ошибка при удалении точки:', err);
+    }
   }
 
   async _handleAddPoint(newPoint) {
-    this.model.addPoint(newPoint);
-    this._clearPoints();
-    this._renderPoints();
+    try {
+      const created = await this.apiService.addPoint(newPoint);
+      this.model.addPoint(created);
+      this._clearPoints();
+      this._renderPoints();
+    } catch (err) {
+      // обработка ошибки добавления точки
+      // console.error('Ошибка при добавлении точки:', err);
+    }
   }
 }

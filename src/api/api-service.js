@@ -18,12 +18,13 @@ export default class ApiService {
     return response.json();
   }
 
-  // точки
+  // Получение всех точек маршрута
   async getPoints() {
     const points = await this.#load({url: 'points'});
     return points.map(ApiService.adaptPointToClient);
   }
 
+  // Обновление точки маршрута
   async updatePoint(point) {
     const adapted = ApiService.adaptPointToServer(point);
     const updated = await this.#load({
@@ -35,17 +36,37 @@ export default class ApiService {
     return ApiService.adaptPointToClient(updated);
   }
 
-  // destinations
+  // Создание новой точки маршрута
+  async addPoint(point) {
+    const adapted = ApiService.adaptPointToServer(point);
+    const created = await this.#load({
+      url: 'points',
+      method: Method.POST,
+      body: JSON.stringify(adapted),
+      headers: new Headers({'Content-Type': 'application/json'}),
+    });
+    return ApiService.adaptPointToClient(created);
+  }
+
+  // Удаление точки маршрута
+  async deletePoint(pointId) {
+    await this.#load({
+      url: `points/${pointId}`,
+      method: Method.DELETE,
+    });
+  }
+
+  // Получение пунктов назначения
   getDestinations() {
     return this.#load({url: 'destinations'});
   }
 
-  // offers
+  // Получение офферов
   getOffers() {
     return this.#load({url: 'offers'});
   }
 
-  // Адаптер со стороны сервера → клиент
+  // Адаптер данных сервера → клиент
   static adaptPointToClient(point) {
     return {
       id: point.id,
@@ -59,7 +80,7 @@ export default class ApiService {
     };
   }
 
-  // Адаптер со стороны клиента → сервер
+  // Адаптер данных клиента → сервер
   static adaptPointToServer(point) {
     return {
       'id': point.id,
