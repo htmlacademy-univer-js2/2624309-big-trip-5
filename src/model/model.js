@@ -1,9 +1,9 @@
 
 export default class Model {
   constructor() {
-    this.destinations = generateDestinations();
-    this.offers = generateOffers();
-    this.points = generatePoints(this.destinations);
+    //this.destinations = generateDestinations();
+    //this.offers = generateOffers();
+    //this.points = generatePoints(this.destinations);
   }
 
   // --- Destinations ---

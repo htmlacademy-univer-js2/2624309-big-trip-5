@@ -7,13 +7,13 @@ const pointsModel = new PointsModel();
 const filterModel = new FilterModel();
 
 // Заполняем модель начальными моковыми данными
-const initialDestinations = generateDestinations();
-const initialOffers = generateOffers();
-const initialPoints = generatePoints(initialDestinations);
+//const initialDestinations = generateDestinations();
+//const initialOffers = generateOffers();
+//const initialPoints = generatePoints(initialDestinations);
 
-pointsModel.setDestinations(initialDestinations);
-pointsModel.setOffers(initialOffers);
-pointsModel.setPoints(initialPoints);
+//pointsModel.setDestinations(initialDestinations);
+//pointsModel.setOffers(initialOffers);
+//pointsModel.setPoints(initialPoints);
 
 const tripContainer = document.querySelector('.trip-events');
 const filtersContainer = document.querySelector('.trip-controls__filters');

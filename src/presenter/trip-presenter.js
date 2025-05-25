@@ -8,17 +8,17 @@ import { render, RenderPosition, remove } from './render.js';
 
 export default class TripPresenter {
   constructor(container) {
-    this.container       = container;
-    this.model           = new Model();
-    this.apiService      = new ApiService();
+    this.container = container;
+    this.model = new Model();
+    this.apiService = new ApiService();
     this.pointPresenters = new Map();
 
     this.currentSortType = SortType.DAY;
-    this.currentFilter   = FilterType.EVERYTHING;
+    this.currentFilter = FilterType.EVERYTHING;
 
     this.filtersComponent = null;
-    this.sortComponent    = null;
-    this.listContainer    = null;
+    this.sortComponent = null;
+    this.listContainer = null;
     this.loadingComponent = null;
   }
 
@@ -45,11 +45,10 @@ export default class TripPresenter {
       this._renderSort();
       this._renderList();
       this._renderPoints();
-    }
-    catch (err) {
-      console.error('Ошибка загрузки данных:', err);
+    } catch (err) {
+      //console.error('Ошибка загрузки данных:', err);
       this._removeLoading();
-      this._renderError();  // показываем «Failed to load…»
+      this._renderError(); // показываем «Failed to load…»
     }
   }
 
@@ -86,13 +85,13 @@ export default class TripPresenter {
 
     switch (this.currentFilter) {
       case FilterType.FUTURE:
-        return all.filter(p => new Date(p.dateFrom) > now);
+        return all.filter((p) => new Date(p.dateFrom) > now);
       case FilterType.PAST:
-        return all.filter(p => new Date(p.dateTo) < now);
+        return all.filter((p) => new Date(p.dateTo) < now);
       case FilterType.PRESENT:
-        return all.filter(p => {
+        return all.filter((p) => {
           const from = new Date(p.dateFrom);
-          const to   = new Date(p.dateTo);
+          const to = new Date(p.dateTo);
           return from <= now && now <= to;
         });
       default:
@@ -105,17 +104,17 @@ export default class TripPresenter {
     const pts = this.model.getPoints();
     const availability = {
       everything: pts.length > 0,
-      future:     pts.some(p => new Date(p.dateFrom) > Date.now()),
-      present:    pts.some(p => {
+      future:     pts.some((p) => new Date(p.dateFrom) > Date.now()),
+      present:    pts.some((p) => {
         const now = Date.now();
         return new Date(p.dateFrom) <= now && now <= new Date(p.dateTo);
       }),
-      past:       pts.some(p => new Date(p.dateTo) < Date.now()),
+      past:       pts.some((p) => new Date(p.dateTo) < Date.now()),
     };
 
     this.filtersComponent = new FiltersView(availability, this.currentFilter);
-    this.filtersComponent.setFilterChangeHandler(filterType => {
-      this.currentFilter   = filterType;
+    this.filtersComponent.setFilterChangeHandler((filterType) => {
+      this.currentFilter = filterType;
       this.currentSortType = SortType.DAY; // сброс сортировки
       this._clearPoints();
       this._renderSort();
@@ -181,9 +180,9 @@ export default class TripPresenter {
 
   _renderPoints() {
     const filtered = this._getFilteredPoints();
-    const pts      = this._getSortedPoints(filtered);
-    const dests    = this.model.getDestinations();
-    const offers   = this.model.getOffers();
+    const pts = this._getSortedPoints(filtered);
+    const dests = this.model.getDestinations();
+    const offers = this.model.getOffers();
 
     // если нет ни одной точки
     if (pts.length === 0) {
@@ -200,7 +199,7 @@ export default class TripPresenter {
       return;
     }
 
-    pts.forEach(point => {
+    pts.forEach((point) => {
       const presenter = new PointPresenter(
         this.listContainer,
         this._handleUpdatePoint.bind(this),
@@ -212,7 +211,7 @@ export default class TripPresenter {
   }
 
   _clearPoints() {
-    this.pointPresenters.forEach(p => p.destroy());
+    this.pointPresenters.forEach((p) => p.destroy());
     this.pointPresenters.clear();
     this.listContainer.innerHTML = '';
   }
@@ -227,7 +226,7 @@ export default class TripPresenter {
       this._renderPoints();
     } catch (err) {
       // здесь можно вызвать shake-эффект через presenter
-      console.error('Ошибка при обновлении точки:', err);
+      //console.error('Ошибка при обновлении точки:', err);
     }
   }
 
