@@ -20,13 +20,13 @@ export default class EditPointView extends AbstractStatefulView {
 
   get template() {
     const {type, basePrice, dateFrom, dateTo, destination, selectedOffers} = this._state;
-    const destinationData = this._destinations.find(d => d.id === destination) || {};
+    const destinationData = this._destinations.find((d) => d.id === destination) || {};
     const offersByType = this._offers[type] || [];
 
     // Форматирование дат (можно улучшить)
     const formatDate = (date) => {
       const d = new Date(date);
-      return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear().toString().slice(2)} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+      return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth() + 1).toString().padStart(2,'0')}/${d.getFullYear().toString().slice(2)} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
     };
 
     // Генерация списка типов
@@ -38,16 +38,16 @@ export default class EditPointView extends AbstractStatefulView {
       </div>`).join('');
 
     // Генерация списка пунктов назначения
-    const destinationsMarkup = this._destinations.map(dest => `<option value="${dest.name}"></option>`).join('');
+    const destinationsMarkup = this._destinations.map((dest) => `<option value="${dest.name}"></option>`).join('');
 
     // Генерация списка офферов для выбранного типа
     const offersMarkup = offersByType.length > 0 ? `
       <section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
         <div class="event__available-offers">
-          ${offersByType.map(offer => {
-            const isChecked = selectedOffers.includes(offer.id) ? 'checked' : '';
-            return `
+          ${offersByType.map((offer) => {
+    const isChecked = selectedOffers.includes(offer.id) ? 'checked' : '';
+    return `
               <div class="event__offer-selector">
                 <input class="event__offer-checkbox  visually-hidden" id="offer-${offer.id}" type="checkbox" name="event-offer" value="${offer.id}" ${isChecked}>
                 <label class="event__offer-label" for="offer-${offer.id}">
@@ -56,13 +56,13 @@ export default class EditPointView extends AbstractStatefulView {
                 </label>
               </div>
             `;
-          }).join('')}
+  }).join('')}
         </div>
       </section>` : '';
 
     // Блок с описанием и фото пункта назначения
     const destinationDescription = destinationData.description ? `<p class="event__destination-description">${destinationData.description}</p>` : '';
-    const photosMarkup = (destinationData.pictures || []).map(pic => `<img class="event__photo" src="${pic.src}" alt="${pic.description}">`).join('');
+    const photosMarkup = (destinationData.pictures || []).map((pic) => `<img class="event__photo" src="${pic.src}" alt="${pic.description}">`).join('');
     const photosSection = photosMarkup ? `
       <div class="event__photos-container">
         <div class="event__photos-tape">
@@ -170,7 +170,7 @@ export default class EditPointView extends AbstractStatefulView {
 
   _onDestinationChange(evt) {
     const newDestinationName = evt.target.value;
-    const newDestination = this._destinations.find(d => d.name === newDestinationName);
+    const newDestination = this._destinations.find((d) => d.name === newDestinationName);
 
     if (!newDestination) {
       // Можно сделать валидацию здесь или игнорировать неверные данные

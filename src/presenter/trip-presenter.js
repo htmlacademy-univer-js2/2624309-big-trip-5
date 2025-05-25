@@ -1,8 +1,8 @@
 import FiltersView from '../view/filters-view.js';
 import SortView from '../view/sort-view.js';
 import Model from '../model/model.js';
-import PointPresenter from './point-presenter.js';
-import { SortType, FilterType } from '../const.js';
+import PointPresenter from './PointPresenter.js';
+import { SortType } from '../const.js';
 
 export default class TripPresenter {
   constructor() {
@@ -80,7 +80,7 @@ export default class TripPresenter {
 
     this.clearPoints();
 
-    points.forEach(point => {
+    points.forEach((point) => {
       const presenter = new PointPresenter(
         this.listContainer,
         this.handleDataChange.bind(this),
@@ -92,7 +92,7 @@ export default class TripPresenter {
   }
 
   clearPoints() {
-    this.pointPresenters.forEach(presenter => presenter.destroy());
+    this.pointPresenters.forEach((presenter) => presenter.destroy());
     this.pointPresenters.clear();
     if(this.listContainer) {
       this.listContainer.innerHTML = '';
@@ -105,6 +105,6 @@ export default class TripPresenter {
   }
 
   resetAllForms() {
-    this.pointPresenters.forEach(presenter => presenter.resetView());
+    this.pointPresenters.forEach((presenter) => presenter.resetView());
   }
 }

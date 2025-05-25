@@ -8,7 +8,6 @@ const RenderPosition = {
 function createElement(template) {
   const newElement = document.createElement('div');
   newElement.innerHTML = template;
-
   return newElement.firstElementChild;
 }
 
@@ -17,7 +16,3 @@ function render(component, container, place = RenderPosition.BEFOREEND) {
 }
 
 export {RenderPosition, createElement, render};
-
-const pointView = new PointView(point, destinations, offers, {
-  onExpandClick: () => this.replacePointToForm(pointView, editPointView)
-});
