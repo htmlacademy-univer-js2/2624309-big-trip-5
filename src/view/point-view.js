@@ -1,17 +1,14 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration.js';
+
+dayjs.extend(duration);
 
 export default class PointView extends AbstractView {
   #point;
   #destination;
   #offers;
   #handlers;
-
-  setFavoriteClickHandler(callback) {
-    this.element.querySelector('.event__favorite-btn').addEventListener('click', (evt) => {
-      evt.preventDefault();
-      callback();
-    });
-  }
 
   constructor(point, destinations, offers, handlers = {}) {
     super();
@@ -20,27 +17,35 @@ export default class PointView extends AbstractView {
     this.#offers = offers[point.type]?.filter((o) => point.offers.includes(o.id));
     this.#handlers = handlers;
 
-    // Навешиваем обработчик на кнопку, когда элемент создан
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handlers.onExpandClick);
+    // Навешиваем обработчик после создания элемента
+    if (this.element) {
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handlers.onExpandClick);
+    }
+  }
+
+  setFavoriteClickHandler(callback) {
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', (evt) => {
+      evt.preventDefault();
+      callback();
+    });
   }
 
   #formatDate(date) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return dayjs(date).format('HH:mm');
   }
 
   #getDuration(dateFrom, dateTo) {
-    const diff = dateTo - dateFrom;
-    const minutes = Math.floor(diff / 60000);
-    if (minutes < 60) {
-      return `${minutes}M`;
-    }
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours}H ${remainingMinutes}M`;
+    const diffMs = dayjs(dateTo).diff(dayjs(dateFrom));
+    const dur = dayjs.duration(diffMs);
+
+    const hours = dur.hours();
+    const minutes = dur.minutes();
+
+    return `${hours > 0 ? `${hours}H ` : ''}${minutes}M`;
   }
 
   get template() {
-    const {type, dateFrom, dateTo, basePrice} = this.#point;
+    const { type, dateFrom, dateTo, basePrice } = this.#point;
 
     return `
       <li class="trip-events__item">
@@ -51,9 +56,9 @@ export default class PointView extends AbstractView {
           <h3 class="event__title">${type} ${this.#destination?.name || ''}</h3>
           <div class="event__schedule">
             <p class="event__time">
-              <time class="event__start-time">${this.#formatDate(dateFrom)}</time>
+              <time class="event__start-time" datetime="${dayjs(dateFrom).toISOString()}">${this.#formatDate(dateFrom)}</time>
               &mdash;
-              <time class="event__end-time">${this.#formatDate(dateTo)}</time>
+              <time class="event__end-time" datetime="${dayjs(dateTo).toISOString()}">${this.#formatDate(dateTo)}</time>
             </p>
             <p class="event__duration">${this.#getDuration(dateFrom, dateTo)}</p>
           </div>
