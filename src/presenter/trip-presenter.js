@@ -288,38 +288,17 @@ export default class TripPresenter {
 
   // --- CRUD Actions ---
 
-  async _handleUpdatePoint(updated) {
-    try {
-      const saved = await this.apiService.updatePoint(updated);
-      this.model.updatePoint(saved);
-      this._clearPoints();
-      this._renderPoints();
-      this._updateRouteInfo();
-    } catch (err) {
-
-      // можно добавить shake-эффект здесь
-
-      // тут можно добавить обратную связь — shake эффект и т.п.
-      // console.error('Ошибка при обновлении точки:', err);
-
-    }
-  }
-
   async _handleDeletePoint(deleted) {
     try {
       await this.apiService.deletePoint(deleted.id);
       this.model.deletePoint(deleted.id);
       this._clearPoints();
       this._renderPoints();
-
       this._updateRouteInfo();
     } catch (err) {
-      // можно добавить shake-эффект здесь
-
-    } catch (err) {
-      // тут можно добавить обратную связь при ошибке удаления
-      // console.error('Ошибка при удалении точки:', err);
-
+    // можно добавить shake-эффект здесь
+    // Вместо console.error можно выбросить ошибку или добавить уведомление для пользователя
+      this._showError('Ошибка при удалении точки');
     }
   }
 
@@ -329,14 +308,13 @@ export default class TripPresenter {
       this.model.addPoint(created);
       this._clearPoints();
       this._renderPoints();
-
       this._updateRouteInfo();
     } catch (err) {
-      // можно добавить shake-эффект здесь
-
-    } catch (err) {
-      // обработка ошибки добавления точки
-      // console.error('Ошибка при добавлении точки:', err);
+    // можно добавить shake-эффект здесь
+    // Вместо console.error можно выбросить ошибку или добавить уведомление для пользователя
+      this._showError('Ошибка при добавлении точки');
     }
   }
+
+
 }
